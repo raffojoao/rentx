@@ -5,7 +5,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "api": "json-server ./src/services/server.json  --port 3000 --delay 700"
+    "api": "json-server ./src/services/server.json  --port 3000 --delay 700",
+    "reset": "rm -rf node_modules && yarn install && cd ios && rm -rf Podfile.lock && pod install && cd .."
   },
   "dependencies": {
     "@expo-google-fonts/archivo": "^0.2.2",
@@ -20,6 +21,7 @@
     "expo-font": "~10.0.4",
     "expo-splash-screen": "~0.14.1",
     "expo-status-bar": "~1.2.0",
+    "lottie-react-native": "5.0.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
