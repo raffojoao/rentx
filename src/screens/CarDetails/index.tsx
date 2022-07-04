@@ -87,10 +87,10 @@ export function CarDetails() {
           { backgroundColor: theme.colors.background_secondary },
         ]}
       >
-        <Header>
-          <BackButton onPress={handleGoBack} />
-        </Header>
         <Animated.View style={sliderCarsStyleAnimation}>
+          <Header>
+            <BackButton onPress={handleGoBack} />
+          </Header>
           <CarImages>
             <ImageSlider imagesUrl={car.photos} />
           </CarImages>
@@ -112,8 +112,8 @@ export function CarDetails() {
             <Name>{car.name}</Name>
           </Description>
           <Rent>
-            <Period>{car.rent.period} </Period>
-            <Price>R$ ${car.rent.price}</Price>
+            <Period>{car.period} </Period>
+            <Price>R$ ${car.price}</Price>
           </Rent>
         </Details>
 

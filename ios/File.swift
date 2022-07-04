@@ -6,3 +6,4 @@
 //
 
 import Foundation
+/Users/jomf/projetos/RocketSeat/rentx/rentx/ios/Pods/Target Support Files/Pods-rentx/ExpoModulesProvider.swift:8:8: No such module 'ExpoModulesCore'

@@ -74,23 +74,27 @@ export function Home() {
   }
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchCars() {
       try {
         const response = await api.get("/cars");
-        setCars(response.data);
+        if (isMounted) {
+          setCars(response.data);
+        }
       } catch (error) {
         console.log(error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
     fetchCars();
-  }, []);
-
-  useEffect(() => {
-    BackHandler.addEventListener("hardwareBackPress", () => {
-      return true;
-    });
+    return () => {
+      //equivalente ao didunmount do componente de classe
+      isMounted = false;
+    };
   }, []);
 
   return (
@@ -118,7 +122,7 @@ export function Home() {
           )}
         />
       )}
-      <PanGestureHandler onGestureEvent={onGestureEvent}>
+      {/* <PanGestureHandler onGestureEvent={onGestureEvent}>
         <Animated.View
           style={[
             myCarsButtonStyle,
@@ -140,7 +144,7 @@ export function Home() {
             />
           </ButtonAnimated>
         </Animated.View>
-      </PanGestureHandler>
+      </PanGestureHandler> */}
     </Container>
   );
 }
