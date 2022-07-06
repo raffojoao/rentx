@@ -2,11 +2,12 @@ import React, {
   createContext,
   useState,
   useContext,
-  Children,
   ReactNode,
   useEffect,
 } from "react";
-import api from "../services/api";
+import { Alert } from "react-native";
+
+import { api } from "../services/api";
 import { database } from "../database";
 import { User as ModelUser } from "../database/model/User";
 
@@ -20,11 +21,6 @@ interface User {
   token: string;
 }
 
-// interface AuthState {
-//   token: string;
-//   user: User;
-// }
-
 interface SignInCredentials {
   email: string;
   password: string;
@@ -32,9 +28,11 @@ interface SignInCredentials {
 
 interface AuthContextData {
   user: User;
+  isLogging: boolean;
   signIn: (credentials: SignInCredentials) => Promise<void>;
   signOut: () => Promise<void>;
-  updateUser: (user: User) => Promise<void>;
+  updatedUser: (user: User) => Promise<void>;
+  loading: boolean;
 }
 
 interface AuthProviderProps {
@@ -45,55 +43,85 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
   const [data, setData] = useState<User>({} as User);
+  const [isLogging, setIsLogging] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   async function signIn({ email, password }: SignInCredentials) {
-    try {
-      const response = await api.post("/sessions", { email, password });
-      const { token, user } = response.data;
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      const userCollection = database.get<ModelUser>("users");
-      await database.write(async () => {
-        await userCollection.create((newUser) => {
-          (newUser.user_id = user.id),
+    setIsLogging(true);
+
+    const response = await api.post("/sessions", {
+      email,
+      password,
+    });
+
+    if (response.data.message === "Email or password incorret!") {
+      setIsLogging(false);
+
+      return Alert.alert("Erro na autenticação", "E-mail ou usuário inválido!");
+    }
+
+    setIsLogging(false);
+
+    const { token, user } = response.data;
+    api.defaults.headers.authorization = `Bearer ${token}`;
+
+    const userCollection = database.get<ModelUser>("users");
+    await database.action(async () => {
+      await userCollection
+        .create((newUser) => {
+          (newUser.id = newUser.id),
+            (newUser.user_id = user.id),
             (newUser.name = user.name),
             (newUser.email = user.email),
             (newUser.driver_license = user.driver_license),
             (newUser.avatar = user.avatar),
             (newUser.token = token);
+        })
+        .then((userData) => {
+          setData(userData._raw as unknown as User);
+        })
+        .catch(() => {
+          setIsLogging(false);
+          return Alert.alert(
+            "Erro na autenticação",
+            "Não foi possível realizar o login!"
+          );
         });
-      });
-      setData({ ...user, token });
-    } catch (error) {
-      throw new Error(error);
-    }
+    });
   }
 
   async function signOut() {
     try {
       const userCollection = database.get<ModelUser>("users");
-      await database.write(async () => {
-        const userSelected = await userCollection.find(user.id);
+      await database.action(async () => {
+        const userSelected = await userCollection.find(data.id);
         await userSelected.destroyPermanently();
       });
+
       setData({} as User);
     } catch (error) {
-      throw new Error(error);
+      return Alert.alert(
+        "Erro na atualização",
+        "Não foi possível atualizar os dados do usuário!"
+      );
     }
   }
 
-  async function updateUser(user: User) {
+  async function updatedUser(user: User) {
     try {
       const userCollection = database.get<ModelUser>("users");
-      await database.write(async () => {
-        const userSelected = await userCollection.find(data.id);
+      await database.action(async () => {
+        const userSelected = await userCollection.find(user.id);
         await userSelected.update((userData) => {
           (userData.name = user.name),
             (userData.driver_license = user.driver_license),
             (userData.avatar = user.avatar);
         });
       });
+
       setData(user);
     } catch (error) {
+      console.log(error);
       throw new Error(error);
     }
   }
@@ -105,10 +133,10 @@ function AuthProvider({ children }: AuthProviderProps) {
 
       if (response.length > 0) {
         const userData = response[0]._raw as unknown as User;
-        api.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${userData.token}`;
+
+        api.defaults.headers.authorization = `Bearer ${userData.token}`;
         setData(userData);
+        setLoading(false);
       }
     }
 
@@ -116,7 +144,16 @@ function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user: data, signIn, signOut, updateUser }}>
+    <AuthContext.Provider
+      value={{
+        user: data,
+        isLogging,
+        signIn,
+        signOut,
+        updatedUser,
+        loading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -124,6 +161,7 @@ function AuthProvider({ children }: AuthProviderProps) {
 
 function useAuth(): AuthContextData {
   const context = useContext(AuthContext);
+
   return context;
 }
 

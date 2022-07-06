@@ -1,25 +1,30 @@
-import React, { useState } from "react";
-import { TextInputProps } from "react-native";
-import { useTheme } from "styled-components";
-import { Feather } from "@expo/vector-icons";
-
+import { Feather } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { TextInputProps } from 'react-native';
+import { BorderlessButton } from 'react-native-gesture-handler';
+import { useTheme } from 'styled-components';
 import {
   Container,
-  InputText,
   IconContainer,
-  ChangePasswordVisibilityButton,
-} from "./styles";
+  InputText
+} from './styles';
+
 
 interface Props extends TextInputProps {
-  iconName: React.ComponentProps<typeof Feather>["name"];
+  iconName: React.ComponentProps<typeof Feather>['name'];
   value?: string;
 }
 
-export function PasswordInput({ iconName, value, ...rest }: Props) {
-  const theme = useTheme();
-  const [isVisible, setIsVisible] = useState(false);
+export function PasswordInput({
+  iconName,
+  value,
+  ...rest
+}: Props) {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
+
+  const theme = useTheme();
 
   function handleInputFocus() {
     setIsFocused(true);
@@ -27,12 +32,13 @@ export function PasswordInput({ iconName, value, ...rest }: Props) {
 
   function handleInputBlur() {
     setIsFocused(false);
-    setIsFilled(!!value);
+    setIsFilled(!!value)
   }
 
-  function handlePasswordVisivility() {
-    setIsVisible(!isVisible);
+  function handlePasswordVisibilityChange() {
+    setIsPasswordVisible(prevState => !prevState);
   }
+
 
   return (
     <Container>
@@ -40,28 +46,28 @@ export function PasswordInput({ iconName, value, ...rest }: Props) {
         <Feather
           name={iconName}
           size={24}
-          color={
-            isFocused || isFilled ? theme.colors.main : theme.colors.text_detail
-          }
+          color={(isFocused || isFilled) ? theme.colors.main : theme.colors.text_detail}
         />
       </IconContainer>
+
       <InputText
-        isFocused={isFocused}
-        secureTextEntry={!isVisible}
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}
+        secureTextEntry={isPasswordVisible}
         autoCorrect={false}
+        isFocused={isFocused}
         {...rest}
       />
-      <ChangePasswordVisibilityButton onPress={handlePasswordVisivility}>
+
+      <BorderlessButton onPress={handlePasswordVisibilityChange}>
         <IconContainer isFocused={isFocused}>
           <Feather
-            name={isVisible ? "eye-off" : "eye"}
+            name={isPasswordVisible ? 'eye' : 'eye-off'}
             size={24}
             color={theme.colors.text_detail}
           />
         </IconContainer>
-      </ChangePasswordVisibilityButton>
+      </BorderlessButton>
     </Container>
   );
 }

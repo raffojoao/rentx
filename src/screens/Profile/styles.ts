@@ -1,14 +1,13 @@
-import styled, { css } from "styled-components/native";
-import { BorderlessButton, RectButton } from "react-native-gesture-handler";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
-import { RFValue } from "react-native-responsive-fontsize";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import styled, { css } from 'styled-components/native';
+import { BorderlessButton, RectButton } from 'react-native-gesture-handler';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 interface OptionProps {
   active: boolean;
 }
 
-export const Container = styled(KeyboardAwareScrollView)`
+export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.background_primary};
 `;
 
@@ -86,15 +85,13 @@ export const Options = styled.View`
 export const Option = styled.TouchableOpacity<OptionProps>`
   padding-bottom: 14px;
 
-  ${({ active }) =>
-    active &&
-    css`
-      border-bottom-width: 3px;
-      border-bottom-color: ${({ theme }) => theme.colors.main};
-    `}
+  ${({ active }) => active && css`
+    border-bottom-width: 3px;
+    border-bottom-color: ${({ theme }) => theme.colors.main};    
+  `}
 `;
 
-export const OptionTitle = styled.Text<OptionProps>`
+export const OptionTitle = styled.Text<OptionProps> `
   font-size: ${RFValue(20)}px;
   font-family: ${({ theme, active }) =>
     active ? theme.fonts.secondary_600 : theme.fonts.secondary_500};
@@ -102,6 +99,5 @@ export const OptionTitle = styled.Text<OptionProps>`
     active ? theme.colors.header : theme.colors.text_detail};
 `;
 
-export const Section = styled.View``;
 
-export const Sections = styled(KeyboardAwareScrollView)``;
+export const Section = styled.View``;
