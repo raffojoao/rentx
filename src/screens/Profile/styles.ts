@@ -2,12 +2,13 @@ import styled, { css } from "styled-components/native";
 import { BorderlessButton, RectButton } from "react-native-gesture-handler";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
 import { RFValue } from "react-native-responsive-fontsize";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 interface OptionProps {
   active: boolean;
 }
 
-export const Container = styled.View`
+export const Container = styled(KeyboardAwareScrollView)`
   background-color: ${({ theme }) => theme.colors.background_primary};
 `;
 
@@ -102,3 +103,5 @@ export const OptionTitle = styled.Text<OptionProps>`
 `;
 
 export const Section = styled.View``;
+
+export const Sections = styled(KeyboardAwareScrollView)``;
